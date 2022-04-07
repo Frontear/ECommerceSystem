@@ -151,4 +151,22 @@ public class Product {
     public String toString() {
         return String.format("\nId: %-5s Category: %-9s Name: %-20s Price: %7.1f", id, category, name, price);
     }
+
+    public static class NotFoundException extends RuntimeException {
+        public NotFoundException(String productId) {
+            super(String.format("Product %s Not Found", productId));
+        }
+    }
+
+    public static class InvalidOptionsException extends RuntimeException {
+        public InvalidOptionsException(Product product, String productOptions) {
+            super(String.format("Product %s ProductId %s Invalid Options: %s", product.getName(), product.id, productOptions));
+        }
+    }
+
+    public static class NoStockException extends RuntimeException {
+        public NoStockException(Product product) {
+            super(String.format("Product %s ProductId %s Out of Stock", product.getName(), product.id));
+        }
+    }
 }

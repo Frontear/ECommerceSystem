@@ -97,4 +97,10 @@ public class ProductOrder {
                 customer.getId(), product.getId(), product.getName(),
                 productOptions);
     }
+
+    public static class NotFoundException extends RuntimeException {
+        public NotFoundException(String orderNumber) {
+            super(String.format("Order %s Not Found", orderNumber));
+        }
+    }
 }

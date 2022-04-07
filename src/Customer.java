@@ -83,4 +83,22 @@ public class Customer implements Comparable<Customer> {
     public int compareTo(Customer other) {
         return name.compareTo(other.name);
     }
+
+    public static class NotFoundException extends RuntimeException {
+        public NotFoundException(String customerId) {
+            super(String.format("Customer %s Not Found", customerId));
+        }
+    }
+
+    public static class InvalidNameException extends RuntimeException {
+        public InvalidNameException() {
+            super("Invalid Customer Name");
+        }
+    }
+
+    public static class InvalidAddressException extends RuntimeException {
+        public InvalidAddressException() {
+            super("Invalid Customer Address");
+        }
+    }
 }

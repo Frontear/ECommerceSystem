@@ -172,10 +172,10 @@ public class ECommerceUserInterface {
                     if (!success) {
                         System.out.println(amazon.getErrorMessage());
                     }
-                } else if (line.equalsIgnoreCase("SORTBYPRICE")) {
-                    amazon.sortByPrice();
-                } else if (line.equalsIgnoreCase("SORTBYNAME")) {
-                    amazon.sortByName();
+                } else if (line.equalsIgnoreCase("PRINTBYPRICE")) {
+                    amazon.printByPrice();
+                } else if (line.equalsIgnoreCase("PRINTBYNAME")) {
+                    amazon.printByName();
                 } else if (line.equalsIgnoreCase("SORTCUSTS")) {
                     amazon.sortCustomersByName();
                 } else if (line.equalsIgnoreCase("BOOKSBYAUTHOR")) {
