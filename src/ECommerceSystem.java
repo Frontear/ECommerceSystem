@@ -30,6 +30,7 @@ public class ECommerceSystem {
     private final Map<String, ProductOrder> shippedOrders = new TreeMap<>();
 
     private final Map<String, Integer> stats = new TreeMap<>();
+    private final Map<Integer, List<String>> ratings = new TreeMap<>();
 
     private int orderNumber = 500;
     private int customerId = 900;
@@ -563,6 +564,105 @@ public class ECommerceSystem {
 
             System.out.print(String.format("\nName: %-20s ID: %3s Ordered: %d", products.get(productId).getName(),
                     productId, count));
+        }
+    }
+
+    /**
+     * Adds a rating to a specific rating. If the rating is not found, an exception
+     * is thrown.
+     *
+     * @param productId The product ID of the product being rated.
+     * @param rating    The rating to be added.
+     *
+     * @throws Product.NotFoundException      If the product ID is not found.
+     * @throws Product.InvalidRatingException If the rating is invalid.
+     */
+    public void addRating(String productId, int rating) {
+        Product product = products.get(productId);
+
+        if (product == null) {
+            throw new Product.NotFoundException(productId);
+        }
+
+        if (rating < 1 || rating > 5) {
+            throw new Product.InvalidRatingException(product, rating);
+        }
+
+        if (!ratings.containsKey(rating)) {
+            ratings.put(rating, new ArrayList<>());
+        }
+
+        ratings.get(rating).add(productId);
+    }
+
+    /**
+     * Prints out the ratings for a specified product.
+     *
+     * @param productId The product ID of the product being rated.
+     *
+     * @throws Product.NotFoundException If the product ID is not found.
+     */
+    public void printRatingsByProductId(String productId) {
+        Product product = products.get(productId);
+
+        if (product == null) {
+            throw new Product.NotFoundException(productId);
+        }
+
+        System.out.println(String.format("\nProduct Id: %3s Product Name: %12s", productId, product.getName()));
+        for (int i = 1; i <= 5; i++) {
+            if (!ratings.containsKey(i)) {
+                continue;
+            }
+
+            int count = 0;
+            for (String id : ratings.get(i)) {
+                if (id.equals(productId)) {
+                    count++;
+                }
+            }
+
+            System.out.print(String.format("%dx %s", count, new String(new char[i]).replace("\0", "*")));
+            System.out.println();
+        }
+    }
+
+    /**
+     * Prints out the ratings for all products in a specified category.
+     *
+     * @param category  The category of the products being rated.
+     * @param threshold The minimum number of ratings required for a product to be
+     */
+    public void printRatingsByCategory(Product.Category category, int threshold) {
+        for (Product p : products.values()) {
+            if (p.getCategory().equals(category)) {
+                double average = 0;
+                int total = 0;
+
+                for (int i = 1; i <= 5; i++) {
+                    if (!ratings.containsKey(i)) {
+                        continue;
+                    }
+
+                    long r = ratings.get(i).stream().filter(x -> x.equals(p.getId())).count(); // get the count of how
+                                                                                               // many ratings for each
+                                                                                               // product
+
+                    average += r * i;
+                    total += r;
+                }
+
+                if (total <= 0) {
+                    continue;
+                }
+
+                average /= total;
+
+                if (average >= threshold) {
+                    System.out.print(String.format("\nProduct Id: %3s Product Name: %12s Average Rating: %.2f",
+                            p.getId(), p.getName(), average));
+                }
+            }
         }
     }
 

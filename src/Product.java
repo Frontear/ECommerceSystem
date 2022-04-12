@@ -73,6 +73,15 @@ public class Product {
     }
 
     /**
+     * Getter for the category of the product.
+     *
+     * @return The category of the product.
+     */
+    public Category getCategory() {
+        return category;
+    }
+
+    /**
      * Validates if the product options specified are valid for this product. A
      * product option is considered valid if it has a designated stock available
      * based on the criteria. This implementation returns true only if the
@@ -210,6 +219,24 @@ public class Product {
          */
         public NoStockException(Product product) {
             super(String.format("Product %s ProductId %s Out of Stock", product.getName(), product.id));
+        }
+    }
+
+    /**
+     * This class extends the RuntimeException to represent an error where a product
+     * is given an invalid rating.
+     */
+    public static class InvalidRatingException extends RuntimeException {
+        /**
+         * Constructs a new InvalidRatingException with the specified product and the
+         * invalid rating given.
+         *
+         * @param product The product that was given an invalid rating.
+         * @param rating  The invalid rating given.
+         */
+        public InvalidRatingException(Product product, int rating) {
+            super(String.format("Product %s ProductId %s Invalid Rating: %d", product.getName(), product.getId(),
+                    rating));
         }
     }
 }

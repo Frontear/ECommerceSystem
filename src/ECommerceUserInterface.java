@@ -232,6 +232,46 @@ public class ECommerceUserInterface {
                         amazon.orderItems(customerId);
                     } else if (line.equalsIgnoreCase("STATS")) {
                         amazon.printStats();
+                    } else if (line.equalsIgnoreCase("ADDRATING")) {
+                        String productId = "";
+                        int rating = 0;
+
+                        System.out.print("Product Id: ");
+                        if (scanner.hasNextLine()) {
+                            productId = normalize(scanner.nextLine());
+                        }
+
+                        System.out.print("\nRating [1-5]: ");
+                        if (scanner.hasNextLine()) {
+                            rating = Integer.parseInt(normalize(scanner.nextLine()));
+                        }
+
+                        amazon.addRating(productId, rating);
+                    } else if (line.equalsIgnoreCase("RATINGSBYID")) {
+                        String productId = "";
+
+                        System.out.print("Product Id: ");
+                        if (scanner.hasNextLine()) {
+                            productId = normalize(scanner.nextLine());
+                        }
+
+                        amazon.printRatingsByProductId(productId);
+                    } else if (line.equalsIgnoreCase("RATINGSBYCATEGORY")) {
+                        Product.Category category = null;
+                        int threshold = 0; // rating threshold, everything beyond is required
+
+                        System.out.print("Category [General, Clothing, Books, Furniture, Computers]: ");
+                        if (scanner.hasNextLine()) {
+                            String categoryStr = normalize(scanner.nextLine());
+                            category = Product.Category.valueOf(categoryStr.toUpperCase());
+                        }
+
+                        System.out.print("\nRating Threshold [> 1-5]: ");
+                        if (scanner.hasNextLine()) {
+                            threshold = Integer.parseInt(normalize(scanner.nextLine()));
+                        }
+
+                        amazon.printRatingsByCategory(category, threshold);
                     }
                 } catch (RuntimeException e) {
                     System.out.println(e.getMessage());

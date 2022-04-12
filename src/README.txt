@@ -1,4 +1,4 @@
 Name: Ali Rizvi
 Date: 4/6/2022
 Student ID: 501039655
-Description: todo
+Description: Everything works as required by spec. Exceptions were placed in individual classes as it made more sense. File I/O made use of BufferedReader and String.split() instead of Scanner. Orders, shippedOrders and other collections were converted into Maps because it would improve performance and allowed for better O(1) obtaining. The bonus stored the ratings in the system, using the ratings themselves as the key, with the products stored in the values as a list of products. Two actions, RATINGSBYID and RATINGSBYCATEGORY were implemented, the first using productId to print all ratings, and the second using category to print any products that's average rating is beyond the threshold.
