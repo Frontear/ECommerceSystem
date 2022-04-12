@@ -3,8 +3,8 @@ import java.util.List;
 /**
  * This class represents a customer that uses our ECommerceSystem. Each customer
  * has a unique identifier associated with them. Additionally, we also store
- * their name and shipping address. This class implements the Comparable
- * interface so that we can sort customers by their name.
+ * their name, shipping address, and a cart. This class implements the
+ * Comparable interface so that we can sort customers by their name.
  *
  * Customers have the ability to place and cancel orders. Each order will be
  * designated to a specific product, and managed by the system.
@@ -39,6 +39,11 @@ public class Customer implements Comparable<Customer> {
         this.cart = new Cart();
     }
 
+    /**
+     * Getter for the unique cart of the customer.
+     *
+     * @return The unique cart of the customer.
+     */
     public Cart getCart() {
         return cart;
     }
@@ -94,19 +99,50 @@ public class Customer implements Comparable<Customer> {
         return name.compareTo(other.name);
     }
 
+    /**
+     * This class extends the RuntimeException class to represent the error where a
+     * customer cannot be found based on their ID.
+     *
+     * @author Ali Rizvi (501039655)
+     * @see RuntimeException
+     * @see Customer
+     */
     public static class NotFoundException extends RuntimeException {
+        /**
+         * Constructs a new NotFoundException provided with the customerId.
+         *
+         * @param customerId The customerId of the customer that was not found.
+         */
         public NotFoundException(String customerId) {
             super(String.format("Customer %s Not Found", customerId));
         }
     }
 
+    /**
+     * This class extends the RuntimeException class to represent the error where an
+     * invalid input, specifically the customer name, is given.
+     *
+     * @author Ali Rizvi (501039655)
+     * @see RuntimeException
+     * @see Customer
+     */
     public static class InvalidNameException extends RuntimeException {
+        /**
+         * Constructs a new InvalidNameException.
+         */
         public InvalidNameException() {
             super("Invalid Customer Name");
         }
     }
 
+    /**
+     * This class extends the RuntimeException class to represent the error where an
+     * invalid input, specifically the customer address, is given.
+     */
     public static class InvalidAddressException extends RuntimeException {
+        /**
+         * Constructs a new InvalidAddressException.
+         */
         public InvalidAddressException() {
             super("Invalid Customer Address");
         }

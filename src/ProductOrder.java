@@ -38,6 +38,15 @@ public class ProductOrder {
     }
 
     /**
+     * Getter for the unique identifier for the product in this order.
+     *
+     * @return The unique identifier for the product in this order.
+     */
+    public String getProductId() {
+        return product.getId();
+    }
+
+    /**
      * Validates if this product order is the same as the product order specified.
      * Internally it compares the unique identifiers of the two product orders.
      *
@@ -98,7 +107,20 @@ public class ProductOrder {
                 productOptions);
     }
 
+    /**
+     * This class extends the RuntimeException class to represent the error where a
+     * product order cannot be found based on its order number.
+     *
+     * @author Ali Rizvi (501039655)
+     * @see RuntimeException
+     * @see ProductOrder
+     */
     public static class NotFoundException extends RuntimeException {
+        /**
+         * Constructs a new NotFoundException provided with the order number.
+         *
+         * @param orderNumber The order number that was not found.
+         */
         public NotFoundException(String orderNumber) {
             super(String.format("Order %s Not Found", orderNumber));
         }

@@ -152,20 +152,62 @@ public class Product {
         return String.format("\nId: %-5s Category: %-9s Name: %-20s Price: %7.1f", id, category, name, price);
     }
 
+    /**
+     * This class extends the RuntimeException to represent an error where a product
+     * cannot be found based on their ID.
+     *
+     * @author Ali Rizvi (501039655)
+     * @see RuntimeException
+     * @see Product
+     */
     public static class NotFoundException extends RuntimeException {
+        /**
+         * Constructs a new NotFoundException with the customerId.
+         *
+         * @param productId The productId of the product that was not found.
+         */
         public NotFoundException(String productId) {
             super(String.format("Product %s Not Found", productId));
         }
     }
 
+    /**
+     * This class extends the RuntimeException to represent an error where a product
+     * is given invalid options.
+     *
+     * @author Ali Rizvi (501039655)
+     * @see RuntimeException
+     * @see Product
+     */
     public static class InvalidOptionsException extends RuntimeException {
+        /**
+         * Constructs a new InvalidOptionsException with the specified product and the
+         * invalid options given.
+         *
+         * @param product        The product that was given invalid options.
+         * @param productOptions The invalid options given.
+         */
         public InvalidOptionsException(Product product, String productOptions) {
             super(String.format("Product %s ProductId %s Invalid Options: %s", product.getName(), product.id,
                     productOptions));
         }
     }
 
+    /**
+     * This class extends the RuntimeException to represent an error where a product
+     * does not have any stock available.
+     *
+     * @author Ali Rizvi (501039655)
+     * @see RuntimeException
+     * @see Product
+     */
     public static class NoStockException extends RuntimeException {
+        /**
+         * Constructs a new NoStockException with the specified product that has no
+         * stock.
+         *
+         * @param product The product that has no stock.
+         */
         public NoStockException(Product product) {
             super(String.format("Product %s ProductId %s Out of Stock", product.getName(), product.id));
         }

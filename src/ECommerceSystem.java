@@ -7,10 +7,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.Map.Entry;
-import java.util.stream.Stream;
+import java.util.TreeMap;
 
 /**
  * This class represents the ECommerceSystem. It is responsible for managing
@@ -193,8 +191,9 @@ public class ECommerceSystem {
      *
      * @param customerId The customer ID of the customer whose order history is to
      *                   be printed.
-     * @return True if the order history was successfully printed. If false, use
-     *         {@link #getErrorMessage()} to find out what went wrong.
+     *
+     * @throws Customer.NotFoundException If the customer with the given ID does not
+     *                                    exist.
      */
     public void printOrderHistory(String customerId) {
         boolean found = false;
@@ -226,15 +225,20 @@ public class ECommerceSystem {
 
     /**
      * Orders a specified product for a specified customer with the given product
-     * options.
+     * options. Validates product stock and options, exceptions are thrown if
+     * neither is valid.
      *
      * @param productId      The product ID of the product to be ordered.
      * @param customerId     The customer ID of the customer who is ordering the
      *                       product.
      * @param productOptions The product options to be used when ordering the
      *                       product.
-     * @return The order number of the order if successful. If false, use
-     *         {@link #getErrorMessage()} to find out what went wrong.
+     * @return The order number of the order.
+     *
+     * @throws Product.NotFoundException       If the product ID is not found.
+     * @throws Customer.NotFoundException      If the customer ID is not found.
+     * @throws Product.InvalidOptionsException If the product options are invalid.
+     * @throws Product.NoStockException        If the product is out of stock.
      */
     public String orderProduct(String productId, String customerId, String productOptions) {
         Product product = products.get(productId);
@@ -275,12 +279,14 @@ public class ECommerceSystem {
     }
 
     /**
-     * Creates a new customer and saves their data to the system.
+     * Creates a new customer and saves their data to the system. Validates inputs,
+     * and throws an exception is they cannot be validated.
      *
      * @param name    The name of the customer.
      * @param address The address of the customer.
-     * @return True if the customer was successfully created. If false, use
-     *         {@link #getErrorMessage()} to find out what went wrong.
+     *
+     * @throws Customer.InvalidNameException    If the name is invalid.
+     * @throws Customer.InvalidAddressException If the address is invalid.
      */
     public void createCustomer(String name, String address) {
         if (name == null || name.equals("")) {
@@ -297,11 +303,13 @@ public class ECommerceSystem {
     /**
      * Ships an active order. This will remove the order from the active orders and
      * place it into a separate list of shipped orders. This cannot be used with
-     * orders that were cancelled or have already been shipped.
+     * orders that were cancelled or have already been shipped. If the order cannot
+     * be found, an exception is thrown.
      *
      * @param orderNumber The order number of the order to be shipped.
-     * @return True if the product order is successfully shipped. If false, use
-     *         {@link #getErrorMessage()} to find out what went wrong.
+     * @return An instance of the shipped order.
+     *
+     * @throws ProductOrder.NotFoundException If the order cannot be found.
      */
     public ProductOrder shipOrder(String orderNumber) {
         ProductOrder order = orders.get(orderNumber);
@@ -319,11 +327,11 @@ public class ECommerceSystem {
     /**
      * Cancels an active order. This will remove the order from the active orders.
      * This will not work for orders that have already been cancelled or have
-     * shipped.
+     * shipped. If the order is not found, this will throw an exception.
      *
      * @param orderNumber The order number of the order to be cancelled.
-     * @return True if the product order is successfully cancelled. If false, use
-     *         {@link #getErrorMessage()} to find out what went wrong.
+     *
+     * @throws ProductOrder.NotFoundException If the order cannot be found.
      */
     public void cancelOrder(String orderNumber) {
         ProductOrder order = orders.get(orderNumber);
@@ -334,6 +342,8 @@ public class ECommerceSystem {
 
         order.cancelOrder();
         orders.remove(orderNumber);
+
+        stats.put(order.getProductId(), stats.getOrDefault(order.getProductId(), 0) - 1);
     }
 
     /**
@@ -389,15 +399,21 @@ public class ECommerceSystem {
         }
     }
 
-    public Class<? extends Product> getProductType(String productId) {
-        Product product = products.get(productId);
-        if (product == null) {
-            throw new Product.NotFoundException(productId);
-        }
-
-        return product.getClass();
-    }
-
+    /**
+     * Adds an item to a customers cart with specific options. Options are validated
+     * and an exception is thrown if they are not valid. If the item is not in
+     * stock, an exception is also thrown. Once everything is validated, the item is
+     * added to the customer's cart.
+     *
+     * @param productId      The product ID of the item to be added.
+     * @param customerId     The customer ID of the customer who is adding the item.
+     * @param productOptions The product options to be used when adding the item.
+     *
+     * @throws Product.NotFoundException       If the product ID is not found.
+     * @throws Product.InvalidOptionsException If the product options are invalid.
+     * @throws Product.NoStockException        If the product is not in stock.
+     * @throws Customer.NotFoundException      If the customer ID is not found.
+     */
     public void addToCart(String productId, String customerId, String productOptions) {
         Product product = products.get(productId);
         Customer customer = null;
@@ -428,6 +444,16 @@ public class ECommerceSystem {
         customer.getCart().getItems().add(new CartItem(product, productOptions));
     }
 
+    /**
+     * Removes an item from a customers cart. If the item is not in the cart, an
+     * exception is thrown.
+     *
+     * @param productId  The product ID of the item to be removed.
+     * @param customerId The customer ID of the customer who is removing the item.
+     *
+     * @throws Product.NotFoundException  If the product ID is not found.
+     * @throws Customer.NotFoundException If the customer ID is not found.
+     */
     public void removeFromCart(String productId, String customerId) {
         Product product = products.get(productId);
         Customer customer = null;
@@ -450,6 +476,14 @@ public class ECommerceSystem {
         customer.getCart().removeItem(productId);
     }
 
+    /**
+     * Prints a customers cart.
+     *
+     * @param customerId The customer ID of the customer who's cart is to be
+     *                   printed.
+     *
+     * @throws Customer.NotFoundException If the customer ID is not found.
+     */
     public void printCart(String customerId) {
         Customer customer = null;
 
@@ -470,6 +504,18 @@ public class ECommerceSystem {
         }
     }
 
+    /**
+     * Orders all the items from a customers cart, clearing out their cart. Stock is
+     * validated once again to ensure items still exist, and an exception is thrown
+     * is there is no stock available. Once the item is ordered, it is removed from
+     * the customers cart.
+     *
+     * @param customerId The customer ID of the customer who's cart is to be
+     *                   ordered.
+     *
+     * @throws Customer.NotFoundException If the customer ID is not found.
+     * @throws Product.NoStockException   If the product is not in stock.
+     */
     public void orderItems(String customerId) {
         Customer customer = null;
 
@@ -502,6 +548,10 @@ public class ECommerceSystem {
         }
     }
 
+    /**
+     * Prints out statistics for how many items a product has been ordered through
+     * the system.
+     */
     public void printStats() {
         List<Entry<String, Integer>> statList = new ArrayList<>(stats.entrySet());
 
@@ -514,5 +564,23 @@ public class ECommerceSystem {
             System.out.print(String.format("\nName: %-20s ID: %3s Ordered: %d", products.get(productId).getName(),
                     productId, count));
         }
+    }
+
+    /**
+     * Utility method to find the type of a product based off of its productId. If a
+     * product cannot be found, it throws an exception.
+     *
+     * @param productId The productId of the product to find the type of.
+     * @return The type of the product.
+     *
+     * @throws Product.NotFoundException If the product cannot be found.
+     */
+    public Class<? extends Product> getProductType(String productId) {
+        Product product = products.get(productId);
+        if (product == null) {
+            throw new Product.NotFoundException(productId);
+        }
+
+        return product.getClass();
     }
 }
