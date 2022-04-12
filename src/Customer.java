@@ -1,3 +1,5 @@
+import java.util.List;
+
 /**
  * This class represents a customer that uses our ECommerceSystem. Each customer
  * has a unique identifier associated with them. Additionally, we also store
@@ -18,6 +20,8 @@ public class Customer implements Comparable<Customer> {
     private final String name;
     private final String shippingAddress;
 
+    private final Cart cart;
+
     /**
      * Constructs a new customer with the given id, name, and shipping address.
      *
@@ -31,6 +35,12 @@ public class Customer implements Comparable<Customer> {
         this.id = id;
         this.name = name;
         this.shippingAddress = address;
+
+        this.cart = new Cart();
+    }
+
+    public Cart getCart() {
+        return cart;
     }
 
     /**

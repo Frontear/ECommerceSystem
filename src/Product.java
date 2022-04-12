@@ -160,7 +160,8 @@ public class Product {
 
     public static class InvalidOptionsException extends RuntimeException {
         public InvalidOptionsException(Product product, String productOptions) {
-            super(String.format("Product %s ProductId %s Invalid Options: %s", product.getName(), product.id, productOptions));
+            super(String.format("Product %s ProductId %s Invalid Options: %s", product.getName(), product.id,
+                    productOptions));
         }
     }
 

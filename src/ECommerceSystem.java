@@ -4,9 +4,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 /**
  * This class represents the ECommerceSystem. It is responsible for managing
@@ -26,6 +30,8 @@ public class ECommerceSystem {
 
     private final Map<String, ProductOrder> orders = new TreeMap<>();
     private final Map<String, ProductOrder> shippedOrders = new TreeMap<>();
+
+    private final Map<String, Integer> stats = new TreeMap<>();
 
     private int orderNumber = 500;
     private int customerId = 900;
@@ -263,6 +269,8 @@ public class ECommerceSystem {
         product.reduceStock(productOptions);
         orders.put(orderNumber, order);
 
+        stats.put(productId, stats.getOrDefault(productId, 0) + 1);
+
         return orderNumber;
     }
 
@@ -378,6 +386,133 @@ public class ECommerceSystem {
 
         for (Book b : books) {
             System.out.print(b);
+        }
+    }
+
+    public Class<? extends Product> getProductType(String productId) {
+        Product product = products.get(productId);
+        if (product == null) {
+            throw new Product.NotFoundException(productId);
+        }
+
+        return product.getClass();
+    }
+
+    public void addToCart(String productId, String customerId, String productOptions) {
+        Product product = products.get(productId);
+        Customer customer = null;
+
+        for (Customer c : customers) {
+            if (c.getId().equals(customerId)) {
+                customer = c;
+                break;
+            }
+        }
+
+        if (product == null) {
+            throw new Product.NotFoundException(productId);
+        }
+
+        if (customer == null) {
+            throw new Customer.NotFoundException(customerId);
+        }
+
+        if (!product.validOptions(productOptions)) {
+            throw new Product.InvalidOptionsException(product, productOptions);
+        }
+
+        if (!product.hasStock(productOptions)) {
+            throw new Product.NoStockException(product);
+        }
+
+        customer.getCart().getItems().add(new CartItem(product, productOptions));
+    }
+
+    public void removeFromCart(String productId, String customerId) {
+        Product product = products.get(productId);
+        Customer customer = null;
+
+        for (Customer c : customers) {
+            if (c.getId().equals(customerId)) {
+                customer = c;
+                break;
+            }
+        }
+
+        if (product == null) {
+            throw new Product.NotFoundException(productId);
+        }
+
+        if (customer == null) {
+            throw new Customer.NotFoundException(customerId);
+        }
+
+        customer.getCart().removeItem(productId);
+    }
+
+    public void printCart(String customerId) {
+        Customer customer = null;
+
+        for (Customer c : customers) {
+            if (c.getId().equals(customerId)) {
+                customer = c;
+                break;
+            }
+        }
+
+        if (customer == null) {
+            throw new Customer.NotFoundException(customerId);
+        }
+
+        for (CartItem item : customer.getCart().getItems()) {
+            System.out.print(String.format("\nCustomer Id: %3s Product Id: %3s Product Name: %12s Options: %8s",
+                    customerId, item.getProduct().getId(), item.getProduct().getName(), item.getOptions()));
+        }
+    }
+
+    public void orderItems(String customerId) {
+        Customer customer = null;
+
+        for (Customer c : customers) {
+            if (c.getId().equals(customerId)) {
+                customer = c;
+                break;
+            }
+        }
+
+        if (customer == null) {
+            throw new Customer.NotFoundException(customerId);
+        }
+
+        Iterator<CartItem> it = customer.getCart().getItems().iterator();
+        while (it.hasNext()) {
+            CartItem item = it.next();
+
+            if (!item.getProduct().hasStock(item.getOptions())) {
+                throw new Product.NoStockException(item.getProduct());
+            }
+
+            String orderNumber = generateOrderNumber();
+            ProductOrder order = new ProductOrder(orderNumber, item.getProduct(), customer, item.getOptions());
+
+            item.getProduct().reduceStock(item.getOptions());
+            orders.put(orderNumber, order);
+
+            it.remove();
+        }
+    }
+
+    public void printStats() {
+        List<Entry<String, Integer>> statList = new ArrayList<>(stats.entrySet());
+
+        Collections.sort(statList, (e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()));
+
+        for (Entry<String, Integer> stat : statList) {
+            String productId = stat.getKey();
+            int count = stat.getValue();
+
+            System.out.print(String.format("\nName: %-20s ID: %3s Ordered: %d", products.get(productId).getName(),
+                    productId, count));
         }
     }
 }

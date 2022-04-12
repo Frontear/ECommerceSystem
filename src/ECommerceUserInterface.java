@@ -134,7 +134,7 @@ public class ECommerceUserInterface {
 
                         System.out.print("\nColor: \"Black\" \"Brown\": ");
                         if (scanner.hasNextLine()) {
-                            options += " " + scanner.nextLine();
+                            options += " " + normalize(scanner.nextLine());
                         }
 
                         String orderNumber = amazon.orderProduct(productId, customerId, options);
@@ -163,9 +163,77 @@ public class ECommerceUserInterface {
                         }
 
                         amazon.printBooksByAuthor(author);
+                    } else if (line.equalsIgnoreCase("ADDTOCART")) {
+                        String productId = "";
+                        String customerId = "";
+                        String options = "";
+
+                        System.out.print("Product Id: ");
+                        if (scanner.hasNextLine()) {
+                            productId = normalize(scanner.nextLine());
+                        }
+
+                        System.out.print("\nCustomer Id: ");
+                        if (scanner.hasNextLine()) {
+                            customerId = normalize(scanner.nextLine());
+                        }
+
+                        Class<? extends Product> type = amazon.getProductType(productId);
+                        if (type == Book.class) {
+                            System.out.print("\nFormat [Paperback Hardcover EBook]: ");
+                            if (scanner.hasNextLine()) {
+                                options = normalize(scanner.nextLine());
+                            }
+                        } else if (type == Shoes.class) {
+                            System.out.print("\nSize: \"6\" \"7\" \"8\" \"9\" \"10\": ");
+                            if (scanner.hasNextLine()) {
+                                options = normalize(scanner.nextLine());
+                            }
+
+                            System.out.print("\nColor: \"Black\" \"Brown\": ");
+                            if (scanner.hasNextLine()) {
+                                options += " " + normalize(scanner.nextLine());
+                            }
+                        }
+
+                        amazon.addToCart(productId, customerId, options);
+                    } else if (line.equalsIgnoreCase("REMCARTITEM")) {
+                        String customerId = "";
+                        String productId = "";
+
+                        System.out.print("Customer Id: ");
+                        if (scanner.hasNextLine()) {
+                            customerId = normalize(scanner.nextLine());
+                        }
+
+                        System.out.print("\nProduct Id: ");
+                        if (scanner.hasNextLine()) {
+                            productId = normalize(scanner.nextLine());
+                        }
+
+                        amazon.removeFromCart(customerId, productId);
+                    } else if (line.equalsIgnoreCase("PRINTCART")) {
+                        String customerId = "";
+
+                        System.out.print("Customer Id: ");
+                        if (scanner.hasNextLine()) {
+                            customerId = normalize(scanner.nextLine());
+                        }
+
+                        amazon.printCart(customerId);
+                    } else if (line.equalsIgnoreCase("ORDERITEMS")) {
+                        String customerId = "";
+
+                        System.out.print("Customer Id: ");
+                        if (scanner.hasNextLine()) {
+                            customerId = normalize(scanner.nextLine());
+                        }
+
+                        amazon.orderItems(customerId);
+                    } else if (line.equalsIgnoreCase("STATS")) {
+                        amazon.printStats();
                     }
-                }
-                catch (RuntimeException e) {
+                } catch (RuntimeException e) {
                     System.out.println(e.getMessage());
                 }
                 System.out.print("\n>");
