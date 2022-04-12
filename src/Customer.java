@@ -1,5 +1,3 @@
-import java.util.List;
-
 /**
  * This class represents a customer that uses our ECommerceSystem. Each customer
  * has a unique identifier associated with them. Additionally, we also store
