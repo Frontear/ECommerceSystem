@@ -22,9 +22,7 @@ import java.util.TreeMap;
 public class ECommerceSystem {
     private final Map<String, Product> products = new TreeMap<>();
 
-    private final Map<String, Customer> customers = new TreeMap<>();
-    private final List<Customer> sortedCustomers = new ArrayList<>(0); // remains empty until sortCustomersByName() is
-                                                                       // called
+    private final List<Customer> customers = new ArrayList<>();
 
     private final Map<String, ProductOrder> orders = new TreeMap<>();
     private final Map<String, ProductOrder> shippedOrders = new TreeMap<>();
@@ -72,11 +70,10 @@ public class ECommerceSystem {
          * 5, 3 })));
          */
 
-        customers.put(id = generateCustomerId(), new Customer(id, "Inigo Montoya", "1 SwordMaker Lane, Florin"));
-        customers.put(id = generateCustomerId(), new Customer(id, "Prince Humperdinck", "The Castle, Florin"));
-        customers.put(id = generateCustomerId(), new Customer(id, "Andy Dufresne", "Shawshank Prison, Maine"));
-        customers.put(id = generateCustomerId(),
-                new Customer(id, "Ferris Bueller", "4160 Country Club Drive, Long Beach"));
+        customers.add(new Customer(id = generateCustomerId(), "Inigo Montoya", "1 SwordMaker Lane, Florin"));
+        customers.add(new Customer(id = generateCustomerId(), "Prince Humperdinck", "The Castle, Florin"));
+        customers.add(new Customer(id = generateCustomerId(), "Andy Dufresne", "Shawshank Prison, Maine"));
+        customers.add(new Customer(id = generateCustomerId(), "Ferris Bueller", "4160 Country Club Drive, Long Beach"));
 
         try (BufferedReader reader = Files.newBufferedReader(Paths.get("products.txt"))) {
             String[] lines = new String[5]; // 5 lines per product
@@ -109,7 +106,7 @@ public class ECommerceSystem {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             System.exit(1);
         }
     }
@@ -179,7 +176,7 @@ public class ECommerceSystem {
      * Prints all the customers in the system.
      */
     public void printCustomers() {
-        for (Customer c : customers.values()) {
+        for (Customer c : customers) {
             System.out.print(c);
         }
     }
@@ -193,8 +190,16 @@ public class ECommerceSystem {
      * @return True if the order history was successfully printed. If false, use
      *         {@link #getErrorMessage()} to find out what went wrong.
      */
-    public boolean printOrderHistory(String customerId) {
-        if (!customers.containsKey(customerId)) {
+    public void printOrderHistory(String customerId) {
+        boolean found = false;
+        for (Customer c : customers) {
+            if (c.getId().equals(customerId)) {
+                found = true;
+                break; // break early, customer has been found
+            }
+        }
+
+        if (!found) {
             throw new Customer.NotFoundException(customerId);
         }
 
@@ -211,8 +216,6 @@ public class ECommerceSystem {
                 System.out.print(o);
             }
         }
-
-        return true;
     }
 
     /**
@@ -229,7 +232,14 @@ public class ECommerceSystem {
      */
     public String orderProduct(String productId, String customerId, String productOptions) {
         Product product = products.get(productId);
-        Customer customer = customers.get(customerId);
+        Customer customer = null;
+
+        for (Customer c : customers) {
+            if (c.getId().equals(customerId)) {
+                customer = c;
+                break;
+            }
+        }
 
         if (product == null) {
             throw new Product.NotFoundException(productId);
@@ -264,7 +274,7 @@ public class ECommerceSystem {
      * @return True if the customer was successfully created. If false, use
      *         {@link #getErrorMessage()} to find out what went wrong.
      */
-    public boolean createCustomer(String name, String address) {
+    public void createCustomer(String name, String address) {
         if (name == null || name.equals("")) {
             throw new Customer.InvalidNameException();
         }
@@ -273,10 +283,7 @@ public class ECommerceSystem {
             throw new Customer.InvalidAddressException();
         }
 
-        String id;
-        customers.put(id = generateCustomerId(), new Customer(id, name, address));
-
-        return true;
+        customers.add(new Customer(generateCustomerId(), name, address));
     }
 
     /**
@@ -310,7 +317,7 @@ public class ECommerceSystem {
      * @return True if the product order is successfully cancelled. If false, use
      *         {@link #getErrorMessage()} to find out what went wrong.
      */
-    public boolean cancelOrder(String orderNumber) {
+    public void cancelOrder(String orderNumber) {
         ProductOrder order = orders.get(orderNumber);
 
         if (order == null) {
@@ -319,8 +326,6 @@ public class ECommerceSystem {
 
         order.cancelOrder();
         orders.remove(orderNumber);
-
-        return true;
     }
 
     /**
@@ -351,10 +356,7 @@ public class ECommerceSystem {
      * Sorts customers by their name, in alphabetical order.
      */
     public void sortCustomersByName() {
-        sortedCustomers.clear();
-        sortedCustomers.addAll(customers.values());
-
-        Collections.sort(sortedCustomers);
+        Collections.sort(customers);
     }
 
     /**
